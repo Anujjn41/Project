@@ -53,31 +53,59 @@ else:
     print('No data loaded...\nPlease load the dataset first and try again.')
     
 #Task 3c
+ 
+from sklearn.metrics import classification_report 
+from sklearn.metrics import confusion_matrix
+
 print("Would you like upload a specific file for evaluation?")
 file_path = input("Enter the file name (or press Enter to skip):")
+
+# Use new file if given, otherwise use existing test data
 if file_path:
     try:
         new_data = pd.read_csv(file_path)
         new_features = new_data.drop("class", axis=1)
         new_classes = new_data["class"]
-        
-        if '1':
-            new_predictions = knn.predict(new_features)
-            print("KNN Predictions on new data:", new_predictions)
-        elif '2':
-            new_predictions = dt.predict(new_features)
-            print("Decision Tree Predictions on new data:", new_predictions)
     except Exception as e:
         print(f"Error loading or processing the file: {e}")
+        new_features = features_test
+        new_classes = classes_test
+else:
+    new_features = features_test
+    new_classes = classes_test
         
+# Evaluate based on the trained model
+
+if '1':
+    predictions = knn.predict(new_features)
+    model_name = "KNN"            
+elif '2':
+    predictions = dt.predict(new_features)
+    model_name = "Decision Tree"
+else:
+    print("Invalid model choice, cannot evaluate.")
+    predictions = None
+    
+if predictions is not None:
+    acc = accuracy_score(new_classes, predictions)
+    report = classification_report(new_classes, predictions)
+    cm = confusion_matrix(new_classes, predictions)
+
+print(f"\n{model_name} Evaluation Results:")
+print(f"Accuracy: {acc:.4f}")
+print("\nClassification Report:\n", report)
+print("Confusion Matrix:\n", cm)
         
-print("Would you like to save the results to a file?")
-save_option = input("Enter 'yes' to save or press Enter to skip:")
+# Ask user if they want to save results        
+save_option = input("\nWould you like to save the results to a file? (yes/no): ")
 if save_option.lower() == 'yes':
-    output_file = input("Enter the output file name (e.g., results.csv):")
-    results_df = pd.DataFrame({
-        'Actual': classes_test,
-        'Predicted': predictions
-    })
-    results_df.to_csv(output_file, index=False)
+    output_file = input("Enter the output file name (e.g., results.txt):")
+    with open(output_file, 'w') as f:
+        f.write(f"{model_name} Model Evaluation\n")
+        f.write("=========================\n")
+        f.write(f"Accuracy: {acc:.4f}\n\n")
+        f.write("Classification Report:\n")
+        f.write(report)
+        f.write("Confusion Matrix:\n")
+        f.write(str(cm))
     print(f"Results saved to {output_file}")
