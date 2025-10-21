@@ -4,17 +4,21 @@ df= pd.read_csv('iris.csv')
 features = df.drop("class", axis=1)
 classes = df["class"]
 
-input("\nWhich ML model do you want to use? KNN(1) or Decision Tree(2)?:")
+print("Dataset loaded sucessfully!\n")
+print("Top 10 rows:\n", df.head(10))
+print("\nBasic Statistics:\n", df.describe())
 
+#----- Choose model -----
+choice = input("\nWhich ML model do you want to use? KNN(1) or Decision Tree(2)?:")
 
-
-if '1':
-    
-    from sklearn.model_selection import train_test_split
-    #split the data into train/ test sets
-    features_train, features_test, classes_train, classes_test = train_test_split(
+# ---- Split data -----
+from sklearn.model_selection import train_test_split
+features_train, features_test, classes_train, classes_test = train_test_split(
     features, classes, test_size=0.2, random_state=10
     )
+
+# ---- Train and evaluate model ----
+if choice == '1':
     #imports knn from implementation from scikit learning
     from sklearn.neighbors import KNeighborsClassifier
     
@@ -30,14 +34,8 @@ if '1':
     from sklearn.metrics import accuracy_score
     print("KNN Accuracy:", accuracy_score(classes_test, predictions))
 
-elif '2':
-    from sklearn.model_selection import train_test_split
-    #split the data into train/ test sets
-    features_train, features_test, classes_train, classes_test = train_test_split(
-    features, classes, test_size=0.2, random_state=10
-    )
-    
-    from sklearn.metrics import DecisionTreeClassifier
+elif choice == '2':
+    from sklearn.tree import DecisionTreeClassifier
     
     #create and train decision tree model:
     dt = DecisionTreeClassifier(random_state=16)
@@ -51,7 +49,6 @@ elif '2':
 
 else:
     print('No data loaded...\nPlease load the dataset first and try again.')
-
 
 
 
