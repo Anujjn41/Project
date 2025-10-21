@@ -1,6 +1,6 @@
 import pandas as pd
 
-df= pd.read_csv('project/iris.csv')
+df= pd.read_csv('iris.csv')
 features = df.drop("class", axis=1)
 classes = df["class"]
 
