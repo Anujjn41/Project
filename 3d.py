@@ -105,3 +105,37 @@ if save_option.lower() == 'yes':
         f.write("Confusion Matrix:\n")
         f.write(str(cm))
     print(f"Results saved to {output_file}") 
+    
+# Task 3d
+# ----- Simulate a Real Environment -----
+print("\n Would you like to simulate a real environment prediction?")
+simulate_option = input("Enter 'yes' to continue or press Enter to skip: ")
+if simulate_option.lower() == 'yes':
+    # Check that a model exists
+    if choice not in ['1', '2']:
+        print("No trained model available. Please train a model first.")
+    else:
+        # Get feature names from dataset (excluding the class column)
+        feature_names = features.columns.tolist()
+        
+        print("\nEnter values for a  new, unseen example:")
+        new_data = []
+        for feature in feature_names:
+            value = float(input(f"Enter value for {feature}: "))
+            new_data.append(value)
+        
+        # Convert list to 2D array for prediction
+        import numpy as np
+        new_data = np.array([new_data])
+        
+        # Make prediction based on a selected model
+        if choice == '1':
+            prediction = knn.predict(new_data)
+            model_name = "KNN"
+        elif choice == '2':
+            prediction = dt.predict(new_data)
+            model_name = "Decision Tree"
+            
+        print(f"\nPredicted class ({model_name}): {prediction[0]}")
+else:
+    print("Simulation skipped.")
