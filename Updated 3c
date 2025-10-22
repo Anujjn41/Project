@@ -1,119 +1,114 @@
 import pandas as pd
+import numpy as np
 
+# Ask if user wants to load their own dataset
+new_file = input("If you want to upload specific file, please upload here (Or press Enter to use default dataset): ")
 
-new_file = input("Do you want to upload specific file? (Or press Enter to use default dataset):")
-if new_file:  
+if new_file:
     try:
         df = pd.read_csv(new_file)
-        print(f"{new_file} is loaded successfully.")
-        last_column = df.columns[-1]
-        features = df.drop(last_column, axis=1)
-        classes = df[last_column]
-        
-        numerical = features.select_dtypes(include='number').columns
-        categorical = features.select_dtypes(exclude='number').columns
-
-        from sklearn.model_selection import train_test_split
-        #split the data into train/ test sets
-        features_train, features_test, classes_train, classes_test = train_test_split(
-                    features, classes, test_size=0.2, random_state=10
-        )
-
-        if classes is numerical:
-                
-                #imports knn from implementation from scikit learning
-                from sklearn.neighbors import KNeighborsClassifier
-
-
-                #create the knn classifier object with k=1
-                knn = KNeighborsClassifier(n_neighbors=1)
-                knn.fit(features_train, classes_train)
-                predictions = knn.predict(features_test)
-                from sklearn.metrics import accuracy_score
-                print("Were are using Hold Out Partitioning Technique, and you can evaluate the model performance using the following metrics:")
-                print(f"\nAccuracy score => {accuracy_score(classes_test, predictions):.3f}")
-        else:
-             from sklearn.compose import ColumnTransformer
-             from sklearn.preprocessing import OneHotEncoder
-             from sklearn.preprocessing import MinMaxScaler
-             # define the numeric attributes
-             numeric_features = numerical
-             categorical_features = categorical
-             
-             # update the preprocessor to consider both numeric and categorical data columns:
-             preprocessor = ColumnTransformer(
-                  transformers=[
-                       ("num", MinMaxScaler(), numeric_features),
-                       ("cat", OneHotEncoder(), categorical_features)
-                       ]
-            ) 
-             
-             preprocessed_features_train = preprocessor.fit_transform(features)
-             preprocessed_features_test = preprocessor.transform(features)
-             
-        
-            
-             # random_state=10 ensures reproducibility - same split every run            
-             
-             from sklearn.neighbors import KNeighborsRegressor
-             from sklearn.metrics import mean_absolute_error, mean_squared_error
-             import numpy as np
-             knnr = KNeighborsRegressor(n_neighbors=1)
-             knnr.fit(features_train, classes_train)
-             predictions = knnr.predict(features_test)
-             mae = mean_absolute_error(classes_test, predictions)
-             mse = mean_squared_error(classes_test, predictions)
-             rmse = np.sqrt(mse)
-             print("Were are using Hold Out Partitioning Technique, and you can evaluate the model performance using the following metrics:")
-             print(f"MAE: {mae:.3f}, MSE: {mse:.3f}, RMSE: {rmse:.3f}")
-             
-
-            
+        print(f"{new_file} loaded successfully.")
     except FileNotFoundError:
-        print(f"File {new_file} not found. Using default dataset instead.")
+        print(f"File '{new_file}' not found. Using default dataset instead.")
         df = pd.read_csv('project/iris.csv')
-
-else :
+else:
     df = pd.read_csv('project/iris.csv')
     print("Using default dataset: project/iris.csv")
 
-    features = df.drop("class", axis=1)
-    classes = df["class"]
+# Prepare dataset
+last_column = df.columns[-1]
+features = df.drop(last_column, axis=1)
+classes = df[last_column]
 
-    
-    from sklearn.model_selection import train_test_split
-    #split the data into train/ test sets
-    features_train, features_test, classes_train, classes_test = train_test_split(
-        features, classes, test_size=0.2, random_state=10
-    )
-    #imports knn from implementation from scikit learning
-    from sklearn.neighbors import KNeighborsClassifier
-    from sklearn.metrics import mean_absolute_error, mean_squared_error
-    import numpy as np
-    
-    #create the knn classifier object with k=1
-    knn = KNeighborsClassifier(n_neighbors=1)
-    knn.fit(features_train, classes_train)
-    predictions = knn.predict(features_test)
-    from sklearn.metrics import accuracy_score
-    print("Were are using Hold Out Partitioning Technique, and you can evaluate the model performance using the following metrics:")
-    print(f"\nAccuracy score => {accuracy_score(classes_test, predictions):.3f}")
+# Detect data types
+numerical = features.select_dtypes(include='number').columns
+categorical = features.select_dtypes(exclude='number').columns
 
-from sklearn.metrics import classification_report
-classification = classification_report(predictions, classes_test)
+# Split data
+from sklearn.model_selection import train_test_split
+features_train, features_test, classes_train, classes_test = train_test_split(
+    features, classes, test_size=0.2, random_state=10
+)
 
-choice = input("Do you want to save the file?")
-if choice == 'yes':
-    filename = input("\nEnter the filename?")
-    with open(filename, 'w') as file:
-       file.write("Results of Model Evaluation:\n")
-       file.write("Classification report\n")
-       file.write(classification)
-       file.write("\n\nWere are using Hold Out Partitioning Technique, and you can evaluate the model performance using the following metrics:\n")
-       if 'mae' in locals():
-         file.write(f"MAE: {mae:.3f}, MSE: {mse:.3f}, RMSE: {rmse:.3f}\n")
-       else:
-        file.write(f"Accuracy score => {accuracy_score(classes_test, predictions):.3f}\n")
-    print(f"Results saved to {filename}")
+# Ask model type
+
+
+# --- Classification case ---
+if classes is categorical:
+    choice_model = input("\nWhich ML model do you want to use? KNN (1) or Decision Tree (2)? ")
+    if choice_model == '1':
+        # KNN Classifier
+        from sklearn.neighbors import KNeighborsClassifier
+        knn = KNeighborsClassifier(n_neighbors=1)
+        knn.fit(features_train, classes_train)
+        predictions = knn.predict(features_test)
+
+        from sklearn.metrics import accuracy_score, classification_report
+        print("\nWe are using Hold-Out Partitioning Technique.")
+        print(f"Accuracy: {accuracy_score(classes_test, predictions):.3f}")
+        print("\nClassification report:")
+        print(classification_report(classes_test, predictions))
+
+    elif choice_model == '2':
+        # Decision Tree Classifier
+        from sklearn.tree import DecisionTreeClassifier
+        dt = DecisionTreeClassifier(random_state=16)
+        dt.fit(features_train, classes_train)
+        predictions = dt.predict(features_test)
+
+        from sklearn.metrics import accuracy_score, classification_report
+        print("\nWe are using Hold-Out Partitioning Technique.")
+        print(f"Accuracy: {accuracy_score(classes_test, predictions):.3f}")
+        print("\nClassification report:")
+        print(classification_report(classes_test, predictions))
+
+    else:
+        print("Invalid choice! Please select 1 or 2.")
+
+# --- Regression case ---
 else:
- print("Thank you for using our algorith.")
+    from sklearn.compose import ColumnTransformer
+    from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", MinMaxScaler(), numerical),
+            ("cat", OneHotEncoder(), categorical)
+        ]
+    )
+    preprocessed_train = preprocessor.fit_transform(features_train)
+    preprocessed_test = preprocessor.transform(features_test)
+
+    from sklearn.neighbors import KNeighborsRegressor
+    knnr = KNeighborsRegressor(n_neighbors=1)
+    knnr.fit(preprocessed_train, classes_train)
+    predictions = knnr.predict(preprocessed_test)
+
+    from sklearn.metrics import mean_absolute_error, mean_squared_error
+    mae = mean_absolute_error(classes_test, predictions)
+    mse = mean_squared_error(classes_test, predictions)
+    rmse = np.sqrt(mse)
+
+    print("\nWe are using Hold-Out Partitioning Technique.")
+    print(f"MAE: {mae:.3f}, MSE: {mse:.3f}, RMSE: {rmse:.3f}")
+
+# Save results
+choice = input("\nDo you want to save the results? (yes/no): ").lower()
+
+if choice == 'yes':
+    filename = input("\nEnter the filename to save results: ")
+    with open(filename, 'w') as file:
+        file.write("Results of Model Evaluation:\n\n")
+        
+
+        if classes is categorical:
+            from sklearn.metrics import accuracy_score, classification_report
+            file.write("Classification Report:\n")
+            file.write(classification_report(classes_test, predictions))
+            file.write(f"\nAccuracy: {accuracy_score(classes_test, predictions):.3f}\n")
+        else:
+            file.write("Regression Evaluation Metrics:\n")
+            file.write(f"MAE: {mae:.3f}\nMSE: {mse:.3f}\nRMSE: {rmse:.3f}\n")
+
+    print(f"\nResults saved to '{filename}'.")
+else:
+    print("Thank you for using our algorithm.")
