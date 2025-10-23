@@ -1,8 +1,16 @@
 import pandas as pd
 import numpy as np
 
-userChoice = int(input("(1)Load the default dataset & Print first 10 rows and some basic statistics\n (2) Train a classification model with the current versio of dataset\n (3) Evaluate and the save the classification model (you can use another specific dataset)\n (4) Stimukate the real environment\n "))
+df= pd.read_csv('project/iris.csv')
+features = df.drop("class", axis=1)
+classes = df["class"]
 
+userChoice = int(input("(1)Load the default dataset & Print first 10 rows and some basic statistics\n (2) Train a classification model with the current versio of dataset\n (3) Evaluate and the save the classification model (you can use another specific dataset)\n (4) Stimukate the real environment\n "))
+from sklearn.model_selection import train_test_split
+            #split the data into train/ test sets
+features_train, features_test, classes_train, classes_test = train_test_split(
+                features, classes, test_size=0.2, random_state=10
+)
 
 match userChoice:
     case 1:
@@ -26,12 +34,7 @@ match userChoice:
         features = df.drop("class", axis=1)
         classes = df["class"]
         choice = input("\nWhich ML model do you want to use? KNN(1) or Decision Tree(2)?:")
-        # ---- Split data -----
-        from sklearn.model_selection import train_test_split
-        features_train, features_test, classes_train, classes_test = train_test_split(
-            features, classes, test_size=0.2, random_state=10
-        )
-        # ---- Train and evaluate model ----
+       
         if choice == '1':
             #imports knn from implementation from scikit learning
             from sklearn.neighbors import KNeighborsClassifier
@@ -77,13 +80,6 @@ match userChoice:
         last_column = df.columns[-1]
         features = df.drop(last_column, axis=1)
         classes = df[last_column]
-
-
-        # Split data
-        from sklearn.model_selection import train_test_split
-        features_train, features_test, classes_train, classes_test = train_test_split(
-            features, classes, test_size=0.2, random_state=10
-        )
 
         # Ask model type
         # --- Classification case ---
@@ -162,8 +158,39 @@ match userChoice:
                         print(f"\nResults saved to '{filename}'.")
         else:
                 print("Thank you for using our algorithm.")
-    case 'd':
-        # ----- Simulate a Real Environment -----
+    case 4:
+        choice = input("\nWhich ML model do you want to use? KNN(1) or Decision Tree(2)?:")
+        if choice =='1':
+            from sklearn.model_selection import train_test_split
+            #split the data into train/ test sets
+            features_train, features_test, classes_train, classes_test = train_test_split(
+                features, classes, test_size=0.2, random_state=10
+            )
+            #imports knn from implementation from scikit learning
+            from sklearn.neighbors import KNeighborsClassifier
+            #create the knn classifier object with k=1
+            knn = KNeighborsClassifier(n_neighbors=1)
+            
+            #train the classifier
+            knn.fit(features_train, classes_train)
+            predictions = knn.predict(features_test)
+            from sklearn.metrics import accuracy_score
+            print("KNN Accuracy:", accuracy_score(classes_test, predictions))
+        elif choice == '2':
+            from sklearn.tree import DecisionTreeClassifier
+            #create and train decision tree model:
+            dt = DecisionTreeClassifier()
+            #trains this DT Classifier with the training set obtained prev:
+            dt.fit(features_train, classes_train)
+            #get predictions from the DT classifier
+            predictions = dt.predict(features_test)
+            from sklearn.metrics import accuracy_score
+            print("Decision Tree Accuracy:", accuracy_score(classes_test, predictions))
+        else:
+            print('No data loaded...\nPlease load the dataset first and try again.')
+
+        
+        # Simulate a Real Environment
         print("\n Would you like to simulate a real environment prediction?")
         simulate_option = input("Enter 'yes' to continue or press Enter to skip: ")
         if simulate_option.lower() == 'yes':
@@ -196,3 +223,4 @@ match userChoice:
 
     case _:
         print("Invalid menu choice")
+
