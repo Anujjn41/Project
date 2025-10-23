@@ -7,7 +7,7 @@ df = pd.read_csv('project/iris.csv')
 features = df.drop("class", axis=1)
 classes = df["class"]
 
-choice = None #to idntify the choice variable for case 4, in case any models has not trained yet
+choice = None #to identify the choice variable for case 4, in case any models has not trained yet
 
 # Split the data into train/test sets
 features_train, features_test, classes_train, classes_test = train_test_split(
