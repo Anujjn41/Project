@@ -20,9 +20,6 @@ last_column = df.columns[-1]
 features = df.drop(last_column, axis=1)
 classes = df[last_column]
 
-# Detect data types
-numerical = features.select_dtypes(include='number').columns
-categorical = features.select_dtypes(exclude='number').columns
 
 # Split data
 from sklearn.model_selection import train_test_split
@@ -34,7 +31,7 @@ features_train, features_test, classes_train, classes_test = train_test_split(
 
 
 # --- Classification case ---
-if classes is categorical:
+if classes.dtype=='object':
     choice_model = input("\nWhich ML model do you want to use? KNN (1) or Decision Tree (2)? ")
     if choice_model == '1':
         # KNN Classifier
@@ -100,7 +97,7 @@ if choice == 'yes':
         file.write("Results of Model Evaluation:\n\n")
         
 
-        if classes is categorical:
+        if classes.dtype=='object':
             from sklearn.metrics import accuracy_score, classification_report
             file.write("Classification Report:\n")
             file.write(classification_report(classes_test, predictions))
