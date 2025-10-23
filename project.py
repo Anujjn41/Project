@@ -15,18 +15,14 @@ features_train, features_test, classes_train, classes_test = train_test_split(
 match userChoice:
     case 1:
         df = pd.read_csv('project/iris.csv')
-        filename = input("\nEnter the dataset name:")
-        df.insert(0, "instance", range(1, len(df)+1))
-        
-        with open(filename, "w") as file:
-            file.write('\n\n')
-            file.write(df.head(10).to_string(index=False))
-            file.write('\n\n')
-            file.write(df.describe().to_string())  
-            file.write('\n\n')
-            file.write("\nShape of the dataset (rows, columns):")
-            file.write(str(df.shape))
-        print("Data loaded correctly into:", filename)
+        dataset_name = input("\nEnter the dataset name:")
+        print(f"Dataset Name: {dataset_name}")
+        print(df.head(10))
+        print('\n\n')
+        print(df.describe())  
+        print('\n\n')
+        print("\nShape of the dataset (rows, columns):")
+        print((df.shape))
 
     case 2:
 
