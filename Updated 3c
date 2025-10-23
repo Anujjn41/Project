@@ -10,9 +10,9 @@ if new_file:
         print(f"{new_file} loaded successfully.")
     except FileNotFoundError:
         print(f"File '{new_file}' not found. Using default dataset instead.")
-        df = pd.read_csv('project/iris.csv')
+        df = pd.read_csv('iris.csv')
 else:
-    df = pd.read_csv('project/iris.csv')
+    df = pd.read_csv('iris.csv')
     print("Using default dataset: project/iris.csv")
 
 # Prepare dataset
@@ -20,6 +20,8 @@ last_column = df.columns[-1]
 features = df.drop(last_column, axis=1)
 classes = df[last_column]
 
+numerical = features.select_dtypes(include='number').columns
+categorical = features.select_dtypes(include='object').columns
 
 # Split data
 from sklearn.model_selection import train_test_split
